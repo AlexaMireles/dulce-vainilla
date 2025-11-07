@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Baloo_2, Quicksand } from "next/font/google";
 
 import Header from "./components/header";
-import Providers from "./Providers"; // 👈 importa el archivo Providers.tsx
+import Providers from "./providers/SessionProvider"; // 👈 importa el archivo Providers.tsx
 
 export const metadata: Metadata = {
   title: "Dulce Vainilla",
@@ -22,11 +22,7 @@ const quick = Quicksand({
   variable: "--font-quick",
 });
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({children,}: {children: React.ReactNode;}) {
   return (
     <html lang="es" className={`${baloo.variable} ${quick.variable}`}>
       <body>
