@@ -2,13 +2,8 @@
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Usa formato "Nombre <email>" para mejor deliverability
-const MAIL_FROM =
-  process.env.MAIL_FROM?.trim() ||
-  "Dulce Vainilla <onboarding@resend.dev>";
-
-const OWNER_EMAIL = (process.env.OWNER_EMAIL ?? "").trim().toLowerCase();
+const MAIL_FROM = process.env.MAIL_FROM ?? "onboarding@resend.dev";
+const OWNER_EMAIL = process.env.OWNER_EMAIL ?? "";
 
 // Helper dinero
 const money = (cents: number) =>
@@ -99,62 +94,29 @@ const orderText = (p: OrderEmailPayload) => {
     .join("\n");
 };
 
-// ---------- utils ----------
-function normEmail(s?: string) {
-  return (s ?? "").trim().toLowerCase();
-}
-function isValidEmail(e: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
-}
-function mask(s?: string) {
-  return s ? s.replace(/^(.{3}).+(@.+)$/, "$1***$2") : "";
-}
-
-// ---------- ENVÍO: dos correos, logs detallados ----------
+// ---------- ENVÍO ----------
 export async function sendOrderEmails(p: OrderEmailPayload) {
   const subject = `Orden #${p.orderId} – Dulce Vainilla`;
-  const customerEmail = normEmail(p.customer.email);
 
-  // Log de variables críticas (no imprime API key completa)
-  console.log("MAIL_FROM:", MAIL_FROM);
-  console.log("OWNER_EMAIL:", mask(OWNER_EMAIL));
-  console.log("Customer email:", mask(customerEmail));
-  console.log("RESEND_API_KEY set?:", !!process.env.RESEND_API_KEY);
+  // Email para el CLIENTE
+  await resend.emails.send({
+    from: MAIL_FROM,
+    to: p.customer.email,
+    subject,
+    html: orderHtml(p),
+    text: orderText(p),
+    replyTo: OWNER_EMAIL || undefined, // <- camelCase correcto
+  });
 
-  // 1) Cliente
-  if (isValidEmail(customerEmail)) {
-    try {
-      const resp = await resend.emails.send({
-        from: MAIL_FROM,
-        to: [customerEmail],
-        subject,
-        html: orderHtml(p),
-        text: orderText(p),
-        reply_to: OWNER_EMAIL || undefined,
-      });
-      console.log("✅ Cliente OK:", resp);
-    } catch (err: any) {
-      console.error("❌ Cliente ERROR:", err?.statusCode || "", err?.message || err);
-    }
-  } else {
-    console.warn("⚠️ Email cliente inválido. No se envía:", customerEmail);
-  }
-
-  // 2) Dueña
-  if (isValidEmail(OWNER_EMAIL)) {
-    try {
-      const resp = await resend.emails.send({
-        from: MAIL_FROM,
-        to: [OWNER_EMAIL],
-        subject: `Nueva ${subject}`,
-        html: orderHtml(p),
-        text: orderText(p),
-      });
-      console.log("✅ Dueña OK:", resp);
-    } catch (err: any) {
-      console.error("❌ Dueña ERROR:", err?.statusCode || "", err?.message || err);
-    }
-  } else {
-    console.warn("⚠️ OWNER_EMAIL inválido / vacío. Configura en .env");
+  // Email para la DUEÑA (tú)
+  if (OWNER_EMAIL) {
+    await resend.emails.send({
+      from: MAIL_FROM,
+      to: OWNER_EMAIL,
+      subject: `Nueva ${subject}`,
+      html: orderHtml(p),
+      text: orderText(p),
+      replyTo: p.customer.email, // si respondes, le contestas al cliente
+    });
   }
 }
