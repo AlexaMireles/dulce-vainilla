@@ -1,14 +1,13 @@
 "use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { useSession } from 'next-auth/react';
-import { useCart } from '../context/CartContext';
-
+import Link from "next/link";
+import Image from "next/image";
+import { useSession, signOut } from "next-auth/react"; // <- AÑADIDO signOut
+import { useCart } from "../context/CartContext";
 
 export default function Header() {
-  const { count } = useCart(); // contador de carrito
-  const { data: session } = useSession(); // sesión del usuario
+  const { count } = useCart();                 // contador de carrito
+  const { data: session } = useSession();      // sesión del usuario
 
   return (
     <header className="sticky top-0 z-50 bg-white/70 backdrop-blur border-b border-white/60">
@@ -38,7 +37,7 @@ export default function Header() {
             {count > 0 && (
               <span
                 className="absolute -right-3 -top-2 min-w-5 h-5 px-1 text-xs
-                               bg-rose-500 text-white rounded-full grid place-items-center"
+                           bg-rose-500 text-white rounded-full grid place-items-center"
               >
                 {count}
               </span>
@@ -46,10 +45,10 @@ export default function Header() {
           </Link>
 
           {/* Usuario */}
-          {session ? (
+          {session?.user ? (
             <div className="flex items-center gap-3">
               <span className="text-gray-700 hidden sm:inline">
-                Hola, {session.user?.name || "Usuario"}
+                Hola, {session.user.name || "Usuario"}
               </span>
               <button
                 onClick={() => signOut()}
