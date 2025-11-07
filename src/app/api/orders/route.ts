@@ -3,6 +3,7 @@ export const runtime = "nodejs"; // 👈 Resend SDK requiere Node runtime, no Ed
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { sendOrderEmails } from "@/lib/mailer";
+import type { OrderItem } from "@prisma/client";
 
 
 // Municipios permitidos (AMM)
@@ -154,9 +155,6 @@ export async function POST(req: Request) {
         phone: order.phone || undefined,
         address: order.address || undefined,
       },
-
-      import type { OrderItem } from "@prisma/client"; // ← agrégala arriba junto con los demás imports
-// ...
 items: order.items.map((i: OrderItem) => ({
   title: i.title,
   quantity: i.quantity,
