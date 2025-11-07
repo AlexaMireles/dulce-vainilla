@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+/* ===== Paleta y fuentes (Tailwind v4 @theme) ===== */
+@theme {
+  --color-rosa: #F56BB6;
+  --color-rosa-2: #FF8BCB;
+  --color-crema: #FFF6FB;
+  --color-choco: #41210A;
+}
+
+/* ===== Estilos base ===== */
+html, body {
+  background: var(--color-crema);
+  color: var(--color-choco);
+  font-family: var(--font-quick), system-ui, sans-serif; /* Quicksand */
+}
+
+/* Títulos con Baloo */
+.font-heading { font-family: var(--font-baloo), cursive; }
+
+/* Título grande reutilizable */
+h1.page-title {
+  font-family: var(--font-baloo), cursive;
+  letter-spacing: .3px;
+  /* tailwind utilities */
+  /* equivalente: text-3xl md:text-4xl font-extrabold text-rose-500 tracking-wide */
+  font-weight: 800;
+}
+
+/* Tarjeta tipo glass */
+.card {
+  /* rounded-2xl border border-white/70 backdrop-blur bg-white/80 shadow-sm */
+  border-radius: 1rem;
+  border: 1px solid rgba(255,255,255,.7);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  background: rgba(255,255,255,.8);
+  box-shadow: 0 6px 20px rgba(65,33,10,.06);
+}
+
+/* Botón pastel consistente */
+.btn-dv {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: .75rem 1.25rem;
+  border-radius: .8rem;
+  color: #fff; font-weight: 600;
+  transition: transform .12s ease, opacity .12s ease;
+  background: linear-gradient(135deg, var(--color-rosa), var(--color-rosa-2));
+}
+.btn-dv:hover { transform: translateY(-1px); opacity: .95; }
+
+/* Fondo suave del hero */
+.hero-bg{
+  background:
+    radial-gradient(1100px 520px at 8% 0%, #ffd6ea 0%, transparent 60%),
+    radial-gradient(900px 480px at 92% 8%, #fff1b8 0%, transparent 60%),
+    linear-gradient(#fff,#fff);
+}
+
+/* ===== Animaciones dulces ===== */
+@keyframes dv-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+@keyframes dv-bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-22px)} }
+.animate-dv-float  { animation: dv-float 4s ease-in-out infinite; }
+.animate-dv-bounce { animation: dv-bounce 3.6s ease-in-out infinite; }
+
+/* Hover sutil para cards */
+.dv-hover-card:hover { box-shadow: 0 14px 32px rgba(245,107,134,.12); transform: translateY(-2px); transition: .18s ease; }
