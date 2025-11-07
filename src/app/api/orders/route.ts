@@ -1,10 +1,9 @@
 // src/app/api/orders/route.ts
-export const runtime = "nodejs"; // 👈 Resend SDK requiere Node runtime, no Edge
+export const runtime = "nodejs"; // Resend necesita Node runtime
+
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { sendOrderEmails } from "@/lib/mailer";
-import type { OrderItem } from "@prisma/client";
-
 
 // Municipios permitidos (AMM)
 const METRO_NL = new Set([
@@ -60,6 +59,8 @@ function shippingByPostalCode(cp?: string): number {
   if (/^(67\d{3}|68\d{3}|65\d{3})$/.test(cp)) return 15900; // $159
   return 11900;                                            // default metro
 }
+
+type MailItem = { title: string; quantity: number; unitPrice: number };
 
 export async function POST(req: Request) {
   try {
@@ -155,11 +156,11 @@ export async function POST(req: Request) {
         phone: order.phone || undefined,
         address: order.address || undefined,
       },
-items: order.items.map((i: OrderItem) => ({
-  title: i.title,
-  quantity: i.quantity,
-  unitPrice: i.unitPrice,
-})), 
+      items: order.items.map((i: MailItem) => ({
+        title: i.title,
+        quantity: i.quantity,
+        unitPrice: i.unitPrice,
+      })),
       amounts: { subtotal, shipping, total },
       notes: order.notes || undefined,
     });
@@ -170,4 +171,3 @@ items: order.items.map((i: OrderItem) => ({
     return NextResponse.json({ error: "Error al procesar el pedido" }, { status: 500 });
   }
 }
-
