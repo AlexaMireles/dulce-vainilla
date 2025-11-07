@@ -154,11 +154,14 @@ export async function POST(req: Request) {
         phone: order.phone || undefined,
         address: order.address || undefined,
       },
-      items: order.items.map((i) => ({
-        title: i.title,
-        quantity: i.quantity,
-        unitPrice: i.unitPrice,
-      })),
+
+      import type { OrderItem } from "@prisma/client"; // ← agrégala arriba junto con los demás imports
+// ...
+items: order.items.map((i: OrderItem) => ({
+  title: i.title,
+  quantity: i.quantity,
+  unitPrice: i.unitPrice,
+})), 
       amounts: { subtotal, shipping, total },
       notes: order.notes || undefined,
     });
