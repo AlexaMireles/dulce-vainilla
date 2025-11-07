@@ -1,9 +1,15 @@
 // src/lib/mailer.ts
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const MAIL_FROM = process.env.MAIL_FROM ?? "onboarding@resend.dev";
 const OWNER_EMAIL = process.env.OWNER_EMAIL ?? "";
+
+// Lazy init: crea el cliente solo cuando se usa (evita fallar en build/import)
+function getResend() {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) throw new Error("RESEND_API_KEY is missing");
+  return new Resend(key);
+}
 
 // Helper dinero
 const money = (cents: number) =>
@@ -96,6 +102,7 @@ const orderText = (p: OrderEmailPayload) => {
 
 // ---------- ENVÍO ----------
 export async function sendOrderEmails(p: OrderEmailPayload) {
+  const resend = getResend(); // ← crear aquí
   const subject = `Orden #${p.orderId} – Dulce Vainilla`;
 
   // Email para el CLIENTE
@@ -105,7 +112,7 @@ export async function sendOrderEmails(p: OrderEmailPayload) {
     subject,
     html: orderHtml(p),
     text: orderText(p),
-    replyTo: OWNER_EMAIL || undefined, // <- camelCase correcto
+    replyTo: OWNER_EMAIL || undefined,
   });
 
   // Email para la DUEÑA (tú)
@@ -116,7 +123,7 @@ export async function sendOrderEmails(p: OrderEmailPayload) {
       subject: `Nueva ${subject}`,
       html: orderHtml(p),
       text: orderText(p),
-      replyTo: p.customer.email, // si respondes, le contestas al cliente
+      replyTo: p.customer.email,
     });
   }
 }
